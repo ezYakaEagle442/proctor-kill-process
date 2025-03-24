@@ -11,7 +11,7 @@ Import-Module Microsoft.PowerShell.Utility
 
 #############################################################################
 #
-# Pre-requis
+# 
 #
 # PowerShell 7 utilise pwsh.exe
 # powershell.exe lance toujours la version 5.1.
@@ -21,7 +21,7 @@ Import-Module Microsoft.PowerShell.Utility
 $PSH_VER="7.5.0"
 Write-Host "PowerShell Version : $PSH_VER"
 Write-Host ""
-Write-Host "You must download & install https://github.com/PowerShell/PowerShell/releases/download/v$PSH_VER/PowerShell-$PSH_VER-win-x64.msi"
+# Write-Host "You must download & install https://github.com/PowerShell/PowerShell/releases/download/v$PSH_VER/PowerShell-$PSH_VER-win-x64.msi"
 Write-Host ""
 $PSVersionTable.PSVersion
 pwsh.exe -v
@@ -165,7 +165,7 @@ function KillO365Process() {
 	Write-Log-Step "KillO365Process START"
 	for ($attempt = 1; $attempt -le 10; $attempt++) {
 		Write-Log-Sub-Step "Searching for running Tams KillO365Process (attempt #$attempt)..."
-        $RunningProcesses = Get-Process | Where {($_.name -match "ms-teams") -or ($_.name -match "OfficeClickToRun") -or ($_.name -match "OneDrive") -or ($_.name -match "Outlook") -or ($_.name -match "winword") -or ($_.name -match "excel") -or ($_.name -match "POWERPNT") -or  ($_.name -match "slack") -or ($_.name -match "zoom") }
+        $RunningProcesses = Get-Process | Where {($_.name -match "ms-teams") -or ($_.name -match "OfficeClickToRun") -or ($_.name -match "OneDrive") -or ($_.name -match "Outlook") -or ($_.name -match "winword") -or ($_.name -match "excel") -or ($_.name -match "POWERPNT") }
         if ($RunningProcesses.Count -gt 0) {
 			Write-Log "Found the following running O365 processes:"
 			ForEach ($xProcess in $RunningProcesses) {
@@ -223,26 +223,26 @@ function KillShellProcess() {
 # Kill Miscellanous Process
 #*********************************************************************
 function KillMiscProcess() {
-	Write-Log-Step "KillO365Process START"
+	Write-Log-Step "KillMiscProcess START"
 	for ($attempt = 1; $attempt -le 10; $attempt++) {
 		Write-Log-Sub-Step "Searching for running Tams KillMiscProcess (attempt #$attempt)..."
-        $RunningProcesses = Get-Process | Where {($_.name -match "adobe") -or ($_.name -match "NVIDIA") -or ($_.name -match "spoolsv") -or ($_.name -match "") -or ($_.name -match "ArmouryCrate") -or ($_.name -match "BrStMonW") -or  ($_.name -match "BrYNSvc") -or ($_.name -match "FileOpenManager64") -or ($_.name -match "FileOpenPIBroker") -or ($_.name -match "ssh-agent.exe") }
+        $RunningProcesses = Get-Process | Where { ($_.name -match "slack") -or ($_.name -match "zoom") -or ($_.name -match "adobe") -or ($_.name -match "NVIDIA") -or ($_.name -match "spoolsv") -or ($_.name -match "ArmouryCrate") -or ($_.name -match "BrStMonW") -or  ($_.name -match "BrYNSvc") -or ($_.name -match "FileOpenManager64") -or ($_.name -match "FileOpenPIBroker") -or ($_.name -match "ssh-agent.exe") }
         if ($RunningProcesses.Count -gt 0) {
-			Write-Log "Found the following running O365 processes:"
+			Write-Log "Found the following running MISC processes:"
 			ForEach ($xProcess in $RunningProcesses) {
 				Write-Log $xProcess.Name
 			}
-			Write-Log-Sub-Step "Closing all running O365 processes..."
+			Write-Log-Sub-Step "Closing all running MISC processes..."
 			ForEach ($xProcess in $RunningProcesses) {
 				Write-Log "$(Get-Date -Format G) - Stopping ""$($xProcess.Name)"" process..."
 				$xProcess | Stop-Process -Force
 				Write-Log "$(Get-Date -Format G) - Process stopped"
 			}
-			Write-Log "All xxxx processes are now closed"
+			Write-Log "All MISC processes are now closed"
 			Start-Sleep -Seconds 2
 		}
 		else {
-			Write-Log "Found no running O365 processes"
+			Write-Log "Found no running MISC processes"
 			Break
 		}
 	}
@@ -285,8 +285,8 @@ function KillProcess() {
 	KillJavaProcess
 	KillVirtualizationProcess
 	KillMiscProcess
-	KillBrowserProcess
 	KillShellProcess
+	KillBrowserProcess
 	Write-Log-Step "KillProcess END"
 }
 
