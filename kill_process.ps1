@@ -163,14 +163,39 @@ function KillJavaProcess() {
 #*********************************************************************
 function KillO365Process() {
 	Write-Log-Step "KillO365Process START"
+
+	$service = Get-Service -Name "OneDrive Updater Service" -ErrorAction SilentlyContinue
+	if ($service.Status -eq "Running") {
+		Write-Log "Stopping OfficeClickToRun service..."
+		Stop-Service -Name "OneDrive Updater Service" -Force
+		Write-Log "OneDrive Updater Service stopped"
+	}
+
+	$service = Get-Service -Name "Microsoft.SharePoint" -ErrorAction SilentlyContinue
+	if ($service.Status -eq "Running") {
+		Write-Log "Stopping Microsoft.SharePoint service..."
+		Stop-Service -Name "Microsoft.SharePoint Service" -Force
+		Write-Log "Microsoft.SharePoint Service stopped"
+	}
+	
+
+	$service = Get-Service -Name ClickToRunSvc -ErrorAction SilentlyContinue
+	if ($service.Status -eq "Running") {
+		Write-Log "Stopping OfficeClickToRun service..."
+		Stop-Service -Name ClickToRunSvc -Force
+		Write-Log "OfficeClickToRun service stopped"
+	}
+
 	for ($attempt = 1; $attempt -le 10; $attempt++) {
-		Write-Log-Sub-Step "Searching for running Tams KillO365Process (attempt #$attempt)..."
-        $RunningProcesses = Get-Process | Where {($_.name -match "ms-teams") -or ($_.name -match "OfficeClickToRun") -or ($_.name -match "OneDrive") -or ($_.name -match "Outlook") -or ($_.name -match "winword") -or ($_.name -match "excel") -or ($_.name -match "POWERPNT") }
+		Write-Log-Sub-Step "Searching for running KillO365Process (attempt #$attempt)..."
+		# /!\ Outlook process is identified by "olk" process NOT "RuntimeBroker"
+        $RunningProcesses = Get-Process | Where {($_.name -match "olk") -or ($_.name -match "Outlook") -or ($_.name -match "ms-teams") -or ($_.name -match "OfficeClickToRun") -or ($_.name -match "OneDrive") -or ($_.name -match "winword") -or ($_.name -match "excel") -or ($_.name -match "POWERPNT") }
         if ($RunningProcesses.Count -gt 0) {
 			Write-Log "Found the following running O365 processes:"
 			ForEach ($xProcess in $RunningProcesses) {
 				Write-Log $xProcess.Name
 			}
+
 			Write-Log-Sub-Step "Closing all running O365 processes..."
 			ForEach ($xProcess in $RunningProcesses) {
 				Write-Log "$(Get-Date -Format G) - Stopping ""$($xProcess.Name)"" process..."
@@ -194,7 +219,7 @@ function KillO365Process() {
 function KillShellProcess() {
 	Write-Log-Step "KillShellProcess START"
 	for ($attempt = 1; $attempt -le 10; $attempt++) {
-		Write-Log-Sub-Step "Searching for running Tams KillShellProcess (attempt #$attempt)..."
+		Write-Log-Sub-Step "Searching for CMD (attempt #$attempt)..."
         # $RunningProcesses = Get-Process | Where {($_.name -match "wsl") -or ($_.name -match "CMD") -or ($_.name -match "powershell") -or ($_.name -match "pwsh") }
         $RunningProcesses = Get-Process | Where { ($_.name -match "CMD") }
         if ($RunningProcesses.Count -gt 0) {
@@ -224,14 +249,80 @@ function KillShellProcess() {
 #*********************************************************************
 function KillMiscProcess() {
 	Write-Log-Step "KillMiscProcess START"
+
+	$service = Get-Service -Name Spooler -ErrorAction SilentlyContinue
+	if ($service.Status -eq "Running") {
+		Write-Log "Stopping Spooler service..."
+		Stop-Service -Name Spooler -Force
+		Write-Log "Spooler service stopped"
+	}
+
+	$service = Get-Service -Name FileOpenManager -ErrorAction SilentlyContinue
+	if ($service.Status -eq "Running") {
+		Write-Log "Stopping FileOpenManager service..."
+		Stop-Service -Name FileOpenManager -Force
+		Write-Log "FileOpenManager service stopped"
+	}
+
+	$service = Get-Service -Name NvContainerLocalSystem -ErrorAction SilentlyContinue
+	if ($service.Status -eq "Running") {
+		Write-Log "Stopping NvContainerLocalSystem  service..."
+		Stop-Service -Name NvContainerLocalSystem  -Force
+		Write-Log "NvContainerLocalSystem service stopped"
+	}
+
+	
+	$service = Get-Service -Name BcastDVRUserService_49a0a6 -ErrorAction SilentlyContinue
+	if ($service.Status -eq "Running") {
+		Write-Log "Stopping BcastDVRUserService_49a0a6  service..."
+		Stop-Service -Name NvContainerLocalSystem  -Force
+		Write-Log "BcastDVRUserService_49a0a6 service stopped"
+	}
+
+	$service = Get-Service -Name ssh-agent -ErrorAction SilentlyContinue
+	if ($service.Status -eq "Running") {
+		Write-Log "Stopping ssh-agent  service..."
+		Stop-Service -Name ssh-agent  -Force
+		Write-Log "ssh-agent service stopped"
+	}
+
+	$service = Get-Service -Name ArmouryCrateControlInterface -ErrorAction SilentlyContinue
+	if ($service.Status -eq "Running") {
+		Write-Log "Stopping ArmouryCrateControlInterface  service..."
+		Stop-Service -Name ArmouryCrateControlInterface -Force
+		Write-Log "ArmouryCrateControlInterface service stopped"
+	}
+
+	$service = Get-Service -Name ArmouryCrateService -ErrorAction SilentlyContinue
+	if ($service.Status -eq "Running") {
+		Write-Log "Stopping ArmouryCrateService  service..."
+		Stop-Service -Name ArmouryCrateService -Force
+		Write-Log "ArmouryCrateService service stopped"
+	}
+
+	$service = Get-Service -Name BrStMonW -ErrorAction SilentlyContinue
+	if ($service.Status -eq "Running") {
+		Write-Log "Stopping BrStMonW  service..."
+		Stop-Service -Name BrStMonW -Force
+		Write-Log "BrStMonW service stopped"
+	}	
+
+	$service = Get-Service -Name BrYNSvc -ErrorAction SilentlyContinue
+	if ($service.Status -eq "Running") {
+		Write-Log "Stopping BrYNSvc  service..."
+		Stop-Service -Name BrYNSvc -Force
+		Write-Log "BrYNSvc service stopped"
+	}	
+
 	for ($attempt = 1; $attempt -le 10; $attempt++) {
 		Write-Log-Sub-Step "Searching for running Tams KillMiscProcess (attempt #$attempt)..."
-        $RunningProcesses = Get-Process | Where { ($_.name -match "slack") -or ($_.name -match "zoom") -or ($_.name -match "adobe") -or ($_.name -match "NVIDIA") -or ($_.name -match "spoolsv") -or ($_.name -match "ArmouryCrate") -or ($_.name -match "BrStMonW") -or  ($_.name -match "BrYNSvc") -or ($_.name -match "FileOpenManager64") -or ($_.name -match "FileOpenPIBroker") -or ($_.name -match "ssh-agent.exe") }
+        $RunningProcesses = Get-Process | Where { ($_.name -match "Code") -or  ($_.name -match "slack") -or ($_.name -match "zoom") -or ($_.name -match "adobe") -or ($_.name -match "acrobat") -or ($_.name -match "NVIDIA") -or ($_.name -match "NVIDIA Broadcast") -or ($_.name -match "nvcontainer")  -or ($_.name -match "NVDisplay.Container") -or ($_.name -match "spoolsv") -or ($_.name -match "ArmouryCrate") -or ($_.name -match "BrStMonW") -or  ($_.name -match "BrYNSvc") -or ($_.name -match "FileOpenManager64") -or ($_.name -match "FileOpenPIBroker") -or ($_.name -match "ssh-agent.exe") }
         if ($RunningProcesses.Count -gt 0) {
 			Write-Log "Found the following running MISC processes:"
 			ForEach ($xProcess in $RunningProcesses) {
 				Write-Log $xProcess.Name
 			}
+
 			Write-Log-Sub-Step "Closing all running MISC processes..."
 			ForEach ($xProcess in $RunningProcesses) {
 				Write-Log "$(Get-Date -Format G) - Stopping ""$($xProcess.Name)"" process..."
@@ -254,14 +345,126 @@ function KillMiscProcess() {
 #*********************************************************************
 function KillVirtualizationProcess() {
 	Write-Log-Step "KillVirtualizationProcess START"
+
+	$service = Get-Service -Name "AppVClient" -ErrorAction SilentlyContinue
+	if ($service.Status -eq "Running") {
+		Write-Log "Stopping "AppVClient" service ..."
+		Stop-Service -Name "AppVClient" -Force
+		Write-Log "AppVClient service stopped"
+	}
+	
+	$service = Get-Service -Name "com.docker.service" -ErrorAction SilentlyContinue
+	if ($service.Status -eq "Running") {
+		Write-Log "Stopping "com.docker.service" service ..."
+		Stop-Service -Name "com.docker.service" -Force
+		Write-Log "com.docker.service service stopped"
+	}
+
+	$service = Get-Service -Name "vmcompute" -ErrorAction SilentlyContinue
+	if ($service.Status -eq "Running") {
+		Write-Log "Stopping "vmcompute" service ..."
+		Stop-Service -Name "vmcompute" -Force
+		Write-Log "vmcompute service stopped"
+	}
+
+	$service = Get-Service -Name "vmicguestinterface" -ErrorAction SilentlyContinue
+	if ($service.Status -eq "Running") {
+		Write-Log "Stopping "vmicguestinterface" service ..."
+		Stop-Service -Name "vmicguestinterface " -Force
+		Write-Log "vmicguestinterface service stopped"
+	}
+
+	$service = Get-Service -Name "vmicheartbeat" -ErrorAction SilentlyContinue
+	if ($service.Status -eq "Running") {
+		Write-Log "Stopping "vmicheartbeat" service ..."
+		Stop-Service -Name "vmicheartbeat" -Force
+		Write-Log "vmicheartbeat service stopped"
+	}
+
+	$service = Get-Service -Name "vmicrdv" -ErrorAction SilentlyContinue
+	if ($service.Status -eq "Running") {
+		Write-Log "Stopping "vmicrdv" service ..."
+		Stop-Service -Name "vmicrdv" -Force
+		Write-Log "vmicrdv service stopped"
+	}
+	$service = Get-Service -Name "vmicshutdown" -ErrorAction SilentlyContinue
+	if ($service.Status -eq "Running") {
+		Write-Log "Stopping "vmicshutdown" service..."
+		Stop-Service -Name "vmicshutdown" -Force
+		Write-Log "vmicshutdown service stopped"
+	}
+	$service = Get-Service -Name "vmictimesync" -ErrorAction SilentlyContinue
+	if ($service.Status -eq "Running") {
+		Write-Log "Stopping "vmictimesync" service..."
+		Stop-Service -Name "vmictimesync" -Force
+		Write-Log "vmictimesync service stopped"
+	}
+
+	$service = Get-Service -Name "vmicvmsession" -ErrorAction SilentlyContinue
+	if ($service.Status -eq "Running") {
+		Write-Log "Stopping "vmicvmsession" service..."
+		Stop-Service -Name "vmicvmsession" -Force
+		Write-Log "vmicvmsession service stopped"
+	}
+
+	$service = Get-Service -Name "vmicvss" -ErrorAction SilentlyContinue
+	if ($service.Status -eq "Running") {
+		Write-Log "Stopping "vmicvss" service..."
+		Stop-Service -Name "vmicvss" -Force
+		Write-Log "vmicvss  service stopped"
+	}
+
+	$service = Get-Service -Name "vmms" -ErrorAction SilentlyContinue
+	if ($service.Status -eq "Running") {
+		Write-Log "Stopping "vmms" service ..."
+		Stop-Service -Name "vmms" -Force
+		Write-Log "vmms  service stopped"
+	}
+
+	$service = Get-Service -Name "VMnetDHCP" -ErrorAction SilentlyContinue
+	if ($service.Status -eq "Running") {
+		Write-Log "Stopping "VMnetDHCP" service..."
+		Stop-Service -Name "VMnetDHCP" -Force
+		Write-Log "VMnetDHCP service stopped"
+	}
+
+	$service = Get-Service -Name "VMUSBArbService" -ErrorAction SilentlyContinue
+	if ($service.Status -eq "Running") {
+		Write-Log "Stopping "VMUSBArbService" service..."
+		Stop-Service -Name "VMUSBArbService" -Force
+		Write-Log "VMUSBArbService service stopped"
+	}
+
+	$service = Get-Service -Name "VMware NAT Service" -ErrorAction SilentlyContinue
+	if ($service.Status -eq "Running") {
+		Write-Log "Stopping "VMware NAT Service" service..."
+		Stop-Service -Name "VMware NAT Service" -Force
+		Write-Log "VMware NAT Service service stopped"
+	}
+
+	$service = Get-Service -Name "VmwareAutostartService" -ErrorAction SilentlyContinue
+	if ($service.Status -eq "Running") {
+		Write-Log "Stopping "VmwareAutostartService" service..."
+		Stop-Service -Name "VmwareAutostartService" -Force
+		Write-Log "VmwareAutostartService service stopped"
+	}
+
+	$service = Get-Service -Name "WSLService" -ErrorAction SilentlyContinue
+	if ($service.Status -eq "Running") {
+		Write-Log "Stopping "WSLService" service ..."
+		Stop-Service -Name "WSLService" -Force
+		Write-Log "WSLService service stopped"
+	}
+
 	for ($attempt = 1; $attempt -le 10; $attempt++) {
 		Write-Log-Sub-Step "Searching for running Tams KillVirtualizationProcess (attempt #$attempt)..."
-        $RunningProcesses = Get-Process | Where {($_.name -match "vmms") -or ($_.name -match "vmcompute") -or ($_.name -match "vmware-authd") -or ($_.name -match "vmware-autostart") -or ($_.name -match "vmnetdhcp") -or ($_.name -match "vmnat") -or ($_.name -match "vmware-usbarbitrator64") -or  ($_.name -match "wsl")  -or  ($_.name -match "wslservice") }
+        $RunningProcesses = Get-Process | Where {($_.name -match "vmms") -or ($_.name -match "vmcompute") -or ($_.name -match "vmware-authd") -or ($_.name -match "vmware-autostart") -or ($_.name -match "vmnetdhcp") -or ($_.name -match "vmnat") -or ($_.name -match "vmware-usbarbitrator64") -or ($_.name -match "wsl") -or ($_.name -match "com.docker.build") -or ($_.name -match "wslservice") }
         if ($RunningProcesses.Count -gt 0) {
 			Write-Log "Found the following running Virtualization processes:"
 			ForEach ($xProcess in $RunningProcesses) {
 				Write-Log $xProcess.Name
 			}
+
 			Write-Log-Sub-Step "Closing all running Virtualization processes..."
 			ForEach ($xProcess in $RunningProcesses) {
 				Write-Log "$(Get-Date -Format G) - Stopping ""$($xProcess.Name)"" process..."
@@ -281,6 +484,15 @@ function KillVirtualizationProcess() {
 
 function KillProcess() {
 	Write-Log-Step "KillProcess START"
+
+	Write-Log-Step "List of ALL services"
+	Write-Log-Step ""
+	# Get-Service | Where-Object { $_ -match "OneDrive" }
+	# Get-Service | Format-Table -AutoSize
+	# Get-Process | Format-Table -AutoSize
+	# $(Get-Process).processname | Where-Object { $_ -match "olk" }
+	# Get-Service | Out-GridView
+
 	KillO365Process
 	KillJavaProcess
 	KillVirtualizationProcess
